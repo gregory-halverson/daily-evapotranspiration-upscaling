@@ -1,4 +1,5 @@
 import datetime
+from datetime import datetime
 from typing import Union
 from sun_angles import SHA_deg_from_DOY_lat, daylight_from_SHA, sunrise_from_SHA, calculate_daylight
 from dateutil import parser
@@ -75,12 +76,12 @@ def daily_ET_from_instantaneous(
         LE_instantaneous_Wm2: Union[Raster, np.ndarray, float],
         Rn_instantaneous_Wm2: Union[Raster, np.ndarray, float],
         G_instantaneous_Wm2: Union[Raster, np.ndarray, float],
-        DOY: Union[Raster, np.ndarray, int] = None,
+        day_of_year: Union[Raster, np.ndarray, int] = None,
         lat: Union[Raster, np.ndarray, float] = None,
         hour_of_day: Union[Raster, np.ndarray, float] = None,
         sunrise_hour: Union[Raster, np.ndarray, float] = None,
         daylight_hours: Union[Raster, np.ndarray, float] = None,
-        datetime_UTC: datetime = None,
+        time_UTC: Union[datetime, str, np.ndarray, list] = None,
         geometry: SpatialGeometry = None,
         lambda_Jkg: Union[Raster, np.ndarray, float] = LAMBDA_JKG_WATER_20C
     ) -> Union[Raster, np.ndarray]:
@@ -96,6 +97,9 @@ def daily_ET_from_instantaneous(
     Returns:
         Union[Raster, np.ndarray]: Daily evapotranspiration in kilograms.
     """
+    if lat is None and geometry is not None:
+        lat = geometry.lat
+
     # Calculate evaporative fraction
     EF = calculate_evaporative_fraction(
         LE=LE_instantaneous_Wm2,
@@ -106,21 +110,21 @@ def daily_ET_from_instantaneous(
     # Calculate daylight hours if not provided
     if daylight_hours is None:
         daylight_hours = calculate_daylight(
-            DOY=DOY,
+            day_of_year=day_of_year,
             lat=lat,
-            datetime_UTC=datetime_UTC,
+            time_UTC=time_UTC,
             geometry=geometry
         )
 
     # Calculate sunrise hour if not provided
     if sunrise_hour is None:
-        sunrise_hour = sunrise_from_SHA(SHA_deg_from_DOY_lat(DOY, lat))
+        sunrise_hour = sunrise_from_SHA(SHA_deg_from_DOY_lat(day_of_year, lat))
 
     # Integrate net radiation over the day
     Rn_daylight = daily_Rn_integration_verma(
         Rn=Rn_instantaneous_Wm2,
         hour_of_day=hour_of_day,
-        DOY=DOY,
+        DOY=day_of_year,
         lat=lat,
         sunrise_hour=sunrise_hour,
         daylight_hours=daylight_hours
@@ -130,6 +134,6 @@ def daily_ET_from_instantaneous(
     LE_daylight = EF * Rn_daylight
 
     # Calculate daily ET
-    ET = daily_ET_from_daily_LE(LE_daylight, daylight_hours=daylight_hours, DOY=DOY, lat=lat, datetime_UTC=datetime_UTC, geometry=geometry, lambda_Jkg=lambda_Jkg)
+    ET = daily_ET_from_daily_LE(LE_daylight, daylight_hours=daylight_hours, DOY=day_of_year, lat=lat, datetime_UTC=time_UTC, geometry=geometry, lambda_Jkg=lambda_Jkg)
 
     return ET
