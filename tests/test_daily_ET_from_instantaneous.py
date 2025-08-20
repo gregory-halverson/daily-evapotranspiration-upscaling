@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from datetime import datetime
-from daily_evapotranspiration_upscaling.daily_evapotranspiration_upscaling import daily_ET_from_instantaneous
+from daily_evapotranspiration_upscaling.daily_evapotranspiration_upscaling import daily_ET_from_instantaneous_LE
 
 class TestDailyETFromInstantaneous(unittest.TestCase):
     def test_scalar_inputs_datetime(self):
@@ -14,7 +14,7 @@ class TestDailyETFromInstantaneous(unittest.TestCase):
         hour_of_day = 12.0
         time_UTC = datetime(2023, 6, 29, 12, 0, 0)
         # Should run without error and return a float or np.ndarray
-        result = daily_ET_from_instantaneous(
+        result = daily_ET_from_instantaneous_LE(
             LE_instantaneous_Wm2=LE,
             Rn_instantaneous_Wm2=Rn,
             G_instantaneous_Wm2=G,
@@ -34,7 +34,7 @@ class TestDailyETFromInstantaneous(unittest.TestCase):
         lat = 35.0
         hour_of_day = 12.0
         time_UTC = '2023-06-29T12:00:00'
-        result = daily_ET_from_instantaneous(
+        result = daily_ET_from_instantaneous_LE(
             LE_instantaneous_Wm2=LE,
             Rn_instantaneous_Wm2=Rn,
             G_instantaneous_Wm2=G,
@@ -54,7 +54,7 @@ class TestDailyETFromInstantaneous(unittest.TestCase):
         lat = np.array([35.0, 36.0])
         hour_of_day = np.array([12.0, 13.0])
         time_UTC = [datetime(2023, 6, 29, 12, 0, 0), datetime(2023, 6, 30, 13, 0, 0)]
-        result = daily_ET_from_instantaneous(
+        result = daily_ET_from_instantaneous_LE(
             LE_instantaneous_Wm2=LE,
             Rn_instantaneous_Wm2=Rn,
             G_instantaneous_Wm2=G,

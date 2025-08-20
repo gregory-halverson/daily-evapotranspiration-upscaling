@@ -43,7 +43,7 @@ def calculate_evaporative_fraction(
     return rt.where((LE == 0) | ((Rn - G) == 0), 0, LE / (Rn - G))
 
 def daily_ET_from_daily_LE(
-        LE_daylight: Union[Raster, np.ndarray, float], 
+        LE_daylight_Wm2: Union[Raster, np.ndarray, float], 
         daylight_hours: Union[Raster, np.ndarray, float] = None,
         DOY: Union[Raster, np.ndarray, int] = None,
         lat: Union[Raster, np.ndarray, float] = None,
@@ -67,12 +67,33 @@ def daily_ET_from_daily_LE(
     # convert length of day in hours to seconds
     daylight_seconds = daylight_hours * 3600.0
 
-    # factor seconds out of watts to get joules and divide by latent heat of vaporization to get kilograms
-    ET_daily_kg = rt.clip(LE_daylight * daylight_seconds / LAMBDA_JKG_WATER_20C, 0.0, None)
+    # If Rn and G are provided, use EF logic for upscaling
+    if isinstance(LE_daylight_Wm2, dict):
+        # Support for dict input (e.g., results from PTJPLSM)
+        LE_daylight_Wm2 = LE_daylight_Wm2.get('LE_daylight_Wm2', None)
+        Rn_daily_Wm2 = LE_daylight_Wm2.get('Rn_daily_Wm2', None)
+        Rn_Wm2 = LE_daylight_Wm2.get('Rn_Wm2', None)
+        G_Wm2 = LE_daylight_Wm2.get('G_Wm2', None)
+        LE_Wm2 = LE_daylight_Wm2.get('LE_Wm2', None)
+
+        if None not in (LE_Wm2, Rn_Wm2, G_Wm2, Rn_daily_Wm2):
+            EF = rt.where((LE_Wm2 == 0) | ((Rn_Wm2 - G_Wm2) == 0), 0, LE_Wm2 / (Rn_Wm2 - G_Wm2))
+            LE_daylight_Wm2 = EF * Rn_daily_Wm2
+            ET_daily_kg = rt.clip(LE_daylight_Wm2 * daylight_seconds / LAMBDA_JKG_WATER_20C, 0.0, None)
+
+            return ET_daily_kg
+        
+        elif LE_daylight_Wm2 is not None:
+            ET_daily_kg = rt.clip(LE_daylight_Wm2 * daylight_seconds / LAMBDA_JKG_WATER_20C, 0.0, None)
+
+            return ET_daily_kg
+        
+    # Standard path
+    ET_daily_kg = rt.clip(LE_daylight_Wm2 * daylight_seconds / LAMBDA_JKG_WATER_20C, 0.0, None)
 
     return ET_daily_kg
 
-def daily_ET_from_instantaneous(
+def daily_ET_from_instantaneous_LE(
         LE_instantaneous_Wm2: Union[Raster, np.ndarray, float],
         Rn_instantaneous_Wm2: Union[Raster, np.ndarray, float],
         G_instantaneous_Wm2: Union[Raster, np.ndarray, float],
@@ -133,7 +154,8 @@ def daily_ET_from_instantaneous(
     # Calculate latent heat flux during daylight
     LE_daylight = EF * Rn_daylight
 
-    # Calculate daily ET
-    ET = daily_ET_from_daily_LE(LE_daylight, daylight_hours=daylight_hours, DOY=day_of_year, lat=lat, datetime_UTC=time_UTC, geometry=geometry, lambda_Jkg=lambda_Jkg)
+    # Calculate daily ET using upscaling logic
+    daylight_seconds = daylight_hours * 3600.0
+    ET_daily_kg = rt.clip(LE_daylight * daylight_seconds / LAMBDA_JKG_WATER_20C, 0.0, None)
 
-    return ET
+    return ET_daily_kg
