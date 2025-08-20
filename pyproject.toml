@@ -2,9 +2,9 @@
 requires = ["setuptools>=60", "setuptools-scm>=8.0", "wheel"]
 
 [project]
-name = "daily-evapotranspiration-upscaling"
-version = "1.1.0"
-description = "Instantaneous/Daily Evapotranspiration Upscaling Utilities Python Package"
+name = "daylight-evapotranspiration"
+version = "1.2.0"
+description = "Instantaneous/Daily Evapotranspiration Utilities Python Package"
 readme = "README.md"
 authors = [
     { name = "Gregory H. Halverson", email = "gregory.h.halverson@jpl.nasa.gov" },
@@ -20,7 +20,7 @@ dependencies = [
     "rasters",
     "solar-apparent-time",
     "sun-angles>=1.4.0",
-    "verma-net-radiation"
+    "verma-net-radiation>=1.8.0"
 ]
 
 requires-python = ">=3.10"
@@ -36,4 +36,4 @@ dev = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/JPL-Evapotranspiration-Algorithms/daily-evapotranspiration-upscaling"
+"Homepage" = "https://github.com/JPL-Evapotranspiration-Algorithms/daylight-evapotranspiration"
