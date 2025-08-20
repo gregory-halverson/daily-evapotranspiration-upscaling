@@ -1,4 +1,4 @@
-PACKAGE_NAME = daily-evapotranspiration-upscaling
+PACKAGE_NAME = daylight-evapotranspiration
 ENVIRONMENT_NAME = $(PACKAGE_NAME)
 DOCKER_IMAGE_NAME = $(PACKAGE_NAME)
 
