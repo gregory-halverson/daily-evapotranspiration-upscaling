@@ -289,4 +289,9 @@ def daylight_ET_from_instantaneous_LE(
     daylight_seconds = daylight_hours * 3600.0
     ET_daylight_kg = rt.clip(LE_daylight_Wm2 * daylight_seconds / LAMBDA_JKG_WATER_20C, 0.0, None)
 
-    return ET_daylight_kg
+    # Return a dict with Rn, LE, and ET outputs
+    return {
+        "Rn_daylight_Wm2": Rn_daylight_Wm2,
+        "LE_daylight_Wm2": LE_daylight_Wm2,
+        "ET_daylight_kg": ET_daylight_kg
+    }
