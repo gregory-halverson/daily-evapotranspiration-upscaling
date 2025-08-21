@@ -13,7 +13,6 @@ class TestDaylightETFromInstantaneous(unittest.TestCase):
         lat = 35.0
         hour_of_day = 12.0
         time_UTC = datetime(2023, 6, 29, 12, 0, 0)
-        # Should run without error and return a float or np.ndarray
         result = daylight_ET_from_instantaneous_LE(
             LE_instantaneous_Wm2=LE,
             Rn_instantaneous_Wm2=Rn,
@@ -23,7 +22,11 @@ class TestDaylightETFromInstantaneous(unittest.TestCase):
             hour_of_day=hour_of_day,
             time_UTC=time_UTC
         )
-        self.assertIsInstance(result, (float, np.floating, np.ndarray))
+        self.assertIsInstance(result, dict)
+        self.assertIn("Rn_daylight_Wm2", result)
+        self.assertIn("LE_daylight_Wm2", result)
+        self.assertIn("ET_daylight_kg", result)
+        self.assertIsInstance(result["ET_daylight_kg"], (float, np.floating, np.ndarray))
 
     def test_scalar_inputs_string_time(self):
         # Test with time as string
@@ -43,7 +46,11 @@ class TestDaylightETFromInstantaneous(unittest.TestCase):
             hour_of_day=hour_of_day,
             time_UTC=time_UTC
         )
-        self.assertIsInstance(result, (float, np.floating, np.ndarray))
+        self.assertIsInstance(result, dict)
+        self.assertIn("Rn_daylight_Wm2", result)
+        self.assertIn("LE_daylight_Wm2", result)
+        self.assertIn("ET_daylight_kg", result)
+        self.assertIsInstance(result["ET_daylight_kg"], (float, np.floating, np.ndarray))
 
     def test_array_inputs(self):
         # Test with numpy arrays
@@ -63,8 +70,12 @@ class TestDaylightETFromInstantaneous(unittest.TestCase):
             hour_of_day=hour_of_day,
             time_UTC=time_UTC
         )
-        self.assertIsInstance(result, np.ndarray)
-        self.assertEqual(result.shape, (2,))
+        self.assertIsInstance(result, dict)
+        self.assertIn("Rn_daylight_Wm2", result)
+        self.assertIn("LE_daylight_Wm2", result)
+        self.assertIn("ET_daylight_kg", result)
+        self.assertIsInstance(result["ET_daylight_kg"], np.ndarray)
+        self.assertEqual(result["ET_daylight_kg"].shape, (2,))
 
 if __name__ == '__main__':
     unittest.main()
