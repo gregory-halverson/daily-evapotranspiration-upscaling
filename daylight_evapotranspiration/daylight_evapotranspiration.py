@@ -18,6 +18,7 @@ from dateutil import parser
 import rasters as rt
 from rasters import Raster, SpatialGeometry, wrap_geometry
 from sun_angles import SHA_deg_from_DOY_lat, daylight_from_SHA, sunrise_from_SHA, calculate_daylight, calculate_sunrise
+from solar_apparent_time import calculate_solar_hour_of_day, calculate_solar_day_of_year
 from verma_net_radiation import daylight_Rn_integration_verma
 
 # Latent heat of vaporization for water at 20°C in Joules per kilogram
@@ -254,7 +255,12 @@ def daylight_ET_from_instantaneous_LE(
     # Use geometry latitude if lat not provided
     if lat is None and geometry is not None:
         lat = geometry.lat
-
+    
+    if geometry is not None:
+        lon = geometry.lon
+    else:
+        lon = None
+    
     # Calculate evaporative fraction (EF)
     EF = calculate_evaporative_fraction(
         LE=LE_instantaneous_Wm2,
@@ -279,6 +285,23 @@ def daylight_ET_from_instantaneous_LE(
             time_UTC=time_UTC,
             geometry=geometry
         )
+
+    if hour_of_day is None:
+        hour_of_day = calculate_solar_hour_of_day(
+            time_UTC=time_UTC,
+            geometry=geometry,
+            lat=lat,
+            lon=lon
+        )
+    
+    if day_of_year is None:
+        day_of_year = calculate_solar_day_of_year(
+            time_UTC=time_UTC,
+            geometry=geometry,
+            lat=lat,
+            lon=lon
+        )
+
 
     # Integrate net radiation over daylight period
     Rn_daylight_Wm2 = daylight_Rn_integration_verma(
