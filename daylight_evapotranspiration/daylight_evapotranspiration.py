@@ -17,7 +17,7 @@ from dateutil import parser
 
 import rasters as rt
 from rasters import Raster, SpatialGeometry, wrap_geometry
-from sun_angles import SHA_deg_from_DOY_lat, daylight_from_SHA, sunrise_from_SHA, calculate_daylight
+from sun_angles import SHA_deg_from_DOY_lat, daylight_from_SHA, sunrise_from_SHA, calculate_daylight, calculate_sunrise
 from verma_net_radiation import daylight_Rn_integration_verma
 
 # Latent heat of vaporization for water at 20°C in Joules per kilogram
@@ -273,7 +273,12 @@ def daylight_ET_from_instantaneous_LE(
 
     # Calculate sunrise hour if not provided
     if sunrise_hour is None:
-        sunrise_hour = sunrise_from_SHA(SHA_deg_from_DOY_lat(day_of_year, lat))
+        sunrise_hour = calculate_sunrise(
+            day_of_year=day_of_year,
+            lat=lat,
+            time_UTC=time_UTC,
+            geometry=geometry
+        )
 
     # Integrate net radiation over daylight period
     Rn_daylight_Wm2 = daylight_Rn_integration_verma(
