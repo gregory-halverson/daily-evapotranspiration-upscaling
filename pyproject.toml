@@ -19,7 +19,7 @@ dependencies = [
     "python-dateutil",
     "rasters>=1.12.3",
     "solar-apparent-time",
-    "sun-angles>=1.4.0",
+    "sun-angles>=1.7.0",
     "verma-net-radiation>=1.8.0"
 ]
 
