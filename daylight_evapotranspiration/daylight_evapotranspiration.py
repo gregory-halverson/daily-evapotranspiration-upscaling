@@ -10,13 +10,14 @@
 import datetime
 from datetime import datetime
 from typing import Union
-from sun_angles import SHA_deg_from_DOY_lat, daylight_from_SHA, sunrise_from_SHA, calculate_daylight
-from dateutil import parser
-import rasters as rt
-from rasters import Raster
+
 import numpy as np
 import pandas as pd
-from rasters import SpatialGeometry
+from dateutil import parser
+
+import rasters as rt
+from rasters import Raster, SpatialGeometry, wrap_geometry
+from sun_angles import SHA_deg_from_DOY_lat, daylight_from_SHA, sunrise_from_SHA, calculate_daylight
 from verma_net_radiation import daylight_Rn_integration_verma
 
 # Latent heat of vaporization for water at 20°C in Joules per kilogram
@@ -248,6 +249,8 @@ def daylight_ET_from_instantaneous_LE(
     3. Computes daylight LE and converts to ET.
     Common in remote sensing upscaling (Anderson et al., 2007).
     """
+    geometry = wrap_geometry(geometry)
+
     # Use geometry latitude if lat not provided
     if lat is None and geometry is not None:
         lat = geometry.lat
